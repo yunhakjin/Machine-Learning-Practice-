@@ -1,0 +1,25 @@
+#encoding:utf-8
+from numpy import *
+import matplotlib
+import matplotlib.pyplot as plt
+import operator
+
+def fileToMatrix(filename):
+    file=open(filename)
+    rows=file.readlines()
+    rowsLen=len(rows)
+    returnMat=zeros((rowsLen,3))
+    classLabel=[]
+    index=0
+    for line in rows:
+        line=line.strip()
+        lineList=line.split('\t')
+        returnMat[index,:]=lineList[0:3]
+        classLabel.append(int(lineList[-1]))
+        index+=1
+    return returnMat,classLabel
+fig=plt.figure()
+ax=fig.add_subplot(111)
+Mat,label=fileToMatrix('C:/Users/yxz/Desktop/data.txt')
+ax.scatter(Mat[:,1],Mat[:,2])
+plt.show()
