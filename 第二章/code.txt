@@ -1,0 +1,63 @@
+#encoding:utf-8
+from numpy import *
+import operator
+import matplotlib
+import matplotlib.pyplot as plt
+
+
+training_filename='C:/Users/yxz/Desktop/data.txt'
+test_filename='G:/Machine-Learning-Practice-/machinelearninginaction/Ch02/datingTestSet.txt'
+def entity(filename): #数据预处理
+    file=open(filename)
+    fileLine=file.readlines()
+    classLabel=[] #目标分类
+    index=0
+    mat=zeros((len(fileLine),3))
+    for line in fileLine:
+        line=line.strip()#截取所有的回车符
+        entity=line.split('\t')#使用\t作为分割元素的基本标志
+        mat[index,:]=entity[0:3]
+        classLabel.append(int(entity[-1]))
+        index=index+1
+    return mat,classLabel
+
+def autoNorm(dataSet):#特征值归一化处理
+    minValue=dataSet.min(0)
+    maxValue=dataSet.max(0)
+    ranges=maxValue-minValue
+    normMat=zeros(shape(dataSet))
+    m=dataSet.shape[0]
+    normMat=dataSet-tile(minValue,(m,1))
+    normMat=normMat/tile(ranges,(m,1))
+    return  normMat,ranges,minValue
+
+#inX:用于分类的输入向量；dataSet:训练向量  labels：目标分类（标签） k:要分成多少类
+def classify(inX,dataSet,labels,k):
+    dataSetsize=dataSet.shape[0]
+    diffMat=tile(inX,(dataSetsize,1))-dataSet
+    sqDiffMat=diffMat**2
+    sqDistance=sqDiffMat.sum(axis=1)
+    distance=sqDistance**0.5
+    distancesorted=distance.argsort()
+    classCount={}
+    for i in range(k):
+        voteLabel=labels[distancesorted[i]]
+        classCount[voteLabel]=classCount.get(voteLabel,0)+1
+    sortedClassCount=sorted(classCount.iteritems(),key=operator.itemgetter(1),reverse=True)
+    return sortedClassCount[0][0]
+
+def testClassify():
+    hoRatio=0.10
+    Mat,Labels=entity(training_filename)
+    norMat,ranges,minValue=autoNorm(Mat)
+    m=norMat.shape[0]
+    numTestVecs=int(m*hoRatio)
+    errorCount=0.0
+    for i in range(numTestVecs):
+        classiferResult=classify(norMat[i:1],norMat[numTestVecs:m,:],Labels[numTestVecs:m],3)
+        if classiferResult!=Labels[i]:
+            errorCount+=0.1
+    print("the error rate is:%f"%(errorCount/float(numTestVecs)))
+
+testClassify()
+
