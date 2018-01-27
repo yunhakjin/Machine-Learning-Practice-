@@ -2,24 +2,24 @@
 from numpy import *
 import matplotlib
 import matplotlib.pyplot as plt
-import operator
 
-def fileToMatrix(filename):
+def entity(filename):
     file=open(filename)
-    rows=file.readlines()
-    rowsLen=len(rows)
-    returnMat=zeros((rowsLen,3))
-    classLabel=[]
+    fileLine=file.readlines()
+    classLabel=[] #目标分类
     index=0
-    for line in rows:
-        line=line.strip()
-        lineList=line.split('\t')
-        returnMat[index,:]=lineList[0:3]
-        classLabel.append(int(lineList[-1]))
-        index+=1
-    return returnMat,classLabel
+    mat=zeros((len(fileLine),3))
+    for line in fileLine:
+        line=line.strip()#截取所有的回车符
+        entity=line.split('\t')#使用\t作为分割元素的基本标志
+        mat[index,:]=entity[0:3]
+        classLabel.append(int(entity[-1]))
+        index=index+1
+    return mat,classLabel
+
+mat,classLabel=entity('C:/Users/yxz/Desktop/data.txt')
 fig=plt.figure()
 ax=fig.add_subplot(111)
-Mat,label=fileToMatrix('C:/Users/yxz/Desktop/data.txt')
-ax.scatter(Mat[:,1],Mat[:,2])
+ax.scatter(mat[:,1],mat[:,2])
 plt.show()
+
