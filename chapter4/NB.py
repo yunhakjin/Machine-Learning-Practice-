@@ -31,6 +31,15 @@ def setOfWords2Vec(vocabList,inputSet):
             print("the word: %s is not in my vocabulary!"%(word))
     return returnnVec
 
+#朴素贝叶斯词袋模型：
+#如果一个词在文档中出现不止以此，这可能意味着包含该词是否出现在文档中所不能表达的某种信息，这种方法被称为“词袋模型”
+def bagOfWords2Vec(vocabList,inputSet):
+    returnVec=[0]*len(vocabList)
+    for word in inputSet:
+        if word in vocabList:
+            returnVec[vocabList.index(word)]+=1
+    return returnVec
+
 #朴素贝叶斯分类器训练函数
 #算法：
 #计算每个类别中的文档数目
@@ -62,4 +71,23 @@ def trainNB0(trainMatrix,trainCategory):
     return p0Vect,p1Vect,pAbusive
 
 def classifyNB(vec2Classify,p0Vec,p1Vec,pClass1):
-    
+    p1=sum(vec2Classify*p1Vec)+np.log(pClass1)
+    p0=sum(vec2Classify*p0Vec)+np.log(1.0-pClass1)
+    if p1>p0:
+        return 1
+    else:
+        return 0
+
+def testingNB():
+    listOPosts,listClasses=loadDataSet()
+    myVocabList=createVocabList(listOPosts)
+    trainMat=[]
+    for postinDoc in listOPosts:
+        trainMat.append(setOfWords2Vec(myVocabList,postinDoc))
+    p0V,p1V,pAb=trainNB0(np.array(trainMat),np.array(listClasses))
+    testEntry=['love','my','dalmation']
+    thisDoc=np.array(setOfWords2Vec(myVocabList,testEntry))
+    print(testEntry,"分类为",classifyNB(thisDoc,p0V,p1V,pAb))
+    testEntry=['stupid','garbage']
+    thisDoc=np.array(setOfWords2Vec(myVocabList,testEntry))
+    print(testEntry,"分类为",classifyNB(thisDoc,p0V,p1V,pAb))
